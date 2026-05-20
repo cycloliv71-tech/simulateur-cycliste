@@ -227,7 +227,7 @@ with onglet_graph:
         a, b, c, t = calcul_puissance(poids_g, v_kmh, pente_g, c_rr_g, cda_g)
         pg.append(a); pr.append(b); pa.append(c); pt.append(t)
 
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(7, 3.5))
     styliser_axes(ax, fig)
     ax.fill_between(vitesses, 0, pt, color=COULEURS["accent"], alpha=0.10)
     ax.plot(vitesses, pt, color=COULEURS["accent"], lw=2.4, label="Total")
@@ -240,7 +240,9 @@ with onglet_graph:
     for txt in leg.get_texts():
         txt.set_color("#e6edf3")
     fig.tight_layout()
-    st.pyplot(fig)
+    col_left, col_chart, col_right = st.columns([1, 3, 1])
+    with col_chart:
+        st.pyplot(fig, use_container_width=True)
 
 
 # -----------------------------------------------------
