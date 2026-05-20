@@ -208,18 +208,13 @@ with onglet_puissance:
 with onglet_graph:
     st.subheader("Courbe puissance – vitesse")
     st.caption("Visualise la puissance nécessaire de 5 à 60 km/h.")
-
     col_g1, col_g2 = st.columns(2)
     with col_g1:
-        poids_g = st.number_input("Poids (kg) ", min_value=30.0, max_value=150.0,
-                                  value=75.0, step=0.5, key="poids_g")
-        c_rr_g = st.number_input("Crr ", min_value=0.001, max_value=0.02,
-                                 value=0.003, step=0.0005, format="%.4f", key="crr_g")
+        poids_g = st.number_input("Poids (kg) ", 30.0, 150.0, 75.0, 0.5, key="poids_g")
+        c_rr_g = st.number_input("Crr ", 0.001, 0.02, 0.003, 0.0005, format="%.4f", key="crr_g")
     with col_g2:
-        cda_g = st.number_input("CdA (m²) ", min_value=0.10, max_value=0.60,
-                                value=0.30, step=0.01, key="cda_g")
-        pente_g = st.slider("Pente (%) ", min_value=-20, max_value=20,
-                            value=8, key="pente_g")
+        cda_g = st.number_input("CdA (m²) ", 0.10, 0.60, 0.30, 0.01, key="cda_g")
+        pente_g = st.slider("Pente (%) ", -20, 20, 8, key="pente_g")
 
     vitesses = np.linspace(5, 60, 100)
     pg, pr, pa, pt = [], [], [], []
@@ -227,21 +222,29 @@ with onglet_graph:
         a, b, c, t = calcul_puissance(poids_g, v_kmh, pente_g, c_rr_g, cda_g)
         pg.append(a); pr.append(b); pa.append(c); pt.append(t)
 
-    fig, ax = plt.subplots(figsize=(7, 3.5))
-    styliser_axes(ax, fig)
-    ax.fill_between(vitesses, 0, pt, color=COULEURS["accent"], alpha=0.10)
-    ax.plot(vitesses, pt, color=COULEURS["accent"], lw=2.4, label="Total")
-    ax.plot(vitesses, pg, color=COULEURS["accent2"], lw=1.4, ls="--", label="Gravité")
-    ax.plot(vitesses, pr, color=COULEURS["warn"], lw=1.4, ls="--", label="Roulement")
-    ax.plot(vitesses, pa, color="#9fe9ff", lw=1.4, ls="--", label="Aéro")
-    ax.set_xlabel("Vitesse (km/h)")
-    ax.set_ylabel("Puissance (W)")
-    leg = ax.legend(facecolor="#243042", edgecolor="#2f3e54", loc="upper left")
-    for txt in leg.get_texts():
-        txt.set_color("#e6edf3")
-    fig.tight_layout()
+    # Graphique compact, centré, sans ascenseur
     col_left, col_chart, col_right = st.columns([1, 3, 1])
     with col_chart:
+        fig, ax = plt.subplots(figsize=(6, 3), dpi=110)
+        styliser_axes(ax, fig)
+
+        ax.fill_between(vitesses, 0, pt, color=COULEURS["accent"], alpha=0.10)
+        ax.plot(vitesses, pt, color=COULEURS["accent"], lw=1.8, label="Total")
+        ax.plot(vitesses, pg, color=COULEURS["accent2"], lw=1.1, ls="--", label="Gravité")
+        ax.plot(vitesses, pr, color=COULEURS["warn"], lw=1.1, ls="--", label="Roulement")
+        ax.plot(vitesses, pa, color="#9fe9ff", lw=1.1, ls="--", label="Aéro")
+
+        # Tailles de texte réduites
+        ax.set_xlabel("Vitesse (km/h)", fontsize=9)
+        ax.set_ylabel("Puissance (W)", fontsize=9)
+        ax.tick_params(labelsize=8)
+
+        leg = ax.legend(facecolor="#243042", edgecolor="#2f3e54",
+                        loc="upper left", fontsize=8)
+        for txt in leg.get_texts():
+            txt.set_color("#e6edf3")
+
+        fig.tight_layout()
         st.pyplot(fig, use_container_width=True)
 
 
