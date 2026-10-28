@@ -221,7 +221,10 @@ def main():
         t = (image - image_lacher) / (image_impact - image_lacher) * t_chute
         balancement(pivots[0], np.interp(t, entree[:, 0], entree[:, 1]), image)
 
-    # 2. Traversée de la chaîne, au ralenti
+    # 2. Traversée de la chaîne, au ralenti. Lueur éteinte juste avant
+    # l'impact : sinon la première clé, déjà allumée, vaudrait dès le début.
+    for bille in billes:
+        cle(bille, "color", image_impact - 1)
     position_repos = 2 * rayon * np.arange(n)
     compression_ref = compression.max()
     demi_image = t_choc / n_images_choc / 2
