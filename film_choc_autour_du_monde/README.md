@@ -1,11 +1,14 @@
 # Le choc autour du monde — mouvement calculé pour Blender
 
-Deux scripts séparent ce qui est **calculé** de ce qui est **mis en scène** :
+Les scripts séparent ce qui est **calculé** de ce qui est **mis en scène** :
 
 | Script | Rôle | Où il tourne |
 |---|---|---|
 | `simuler_chaine.py` | Physique seule : chute du pendule, onde dans la chaîne de billes (contact de Hertz), balancement après le choc. Écrit des données en unités SI. | Python 3 + NumPy |
-| `importer_blender.py` | Mise en scène seule : place les données sur la ligne de temps, amplifie les déplacements, pilote la lueur par la compression. Ne calcule aucune physique. | Blender 4.x / 5.x |
+| `importer_blender.py` | Plans 1 à 4 et 10 (le pendule) : place les données sur la ligne de temps, amplifie les déplacements, pilote la lueur par la compression. Ne calcule aucune physique. | Blender 4.x / 5.x |
+| `plans_terre_blender.py` | Plans 5 à 9 et 11 (la Terre) : chaîne le long du méridien de Paris, impulsion en accéléré, compteurs et titre. N'utilise que la vitesse de l'onde calculée. | Blender 4.x / 5.x |
+
+`apercu_choc.mp4` montre les plans du pendule, `apercu_film.mp4` le film assemblé.
 
 ## Utilisation
 
@@ -23,7 +26,24 @@ blender scene.blend --python importer_blender.py -- --donnees /chemin/donnees_ch
 Le script peut être relancé : il vide et recrée la collection `Choc_Billes`.
 Le matériau `Acier_choc` n'est créé qu'une fois, donc vos retouches sont conservées.
 
-## Ce qui est créé dans Blender
+Pour les plans de la Terre, le `.blend` enregistré dans ce dossier (à côté de
+`donnees_choc` et `textures`) :
+
+```bash
+blender scene.blend --python plans_terre_blender.py -- --donnees /chemin/donnees_choc --textures /chemin/textures
+```
+
+Le script crée la scène `Choc_Terre` (recréée à chaque exécution) : la Terre texturée,
+l'atmosphère, l'anneau de billes, le halo qui repère l'impulsion, la caméra de chaque plan
+et les textes. Les compteurs sont mis à jour à chaque image par `compteur_choc.py`, rangé
+dans le `.blend` ; après réouverture du fichier, autorisez l'exécution automatique des
+scripts pour qu'ils restent à jour.
+
+Les instants de passage (`CLES_DISTANCE`) et le découpage des plans (`PLANS`) se règlent en
+tête du script. Le temps réel affiché vaut toujours distance / vitesse calculée, et le
+facteur « Accéléré » est celui de l'image en cours (de ×600 environ au départ à ×75 000).
+
+## Ce qui est créé dans Blender (pendule)
 
 - `Pivot.000…` : point d'attache de chaque fil, qui porte le balancement. Accrochez-y les fils.
 - `Bille.000…` : enfant de son pivot, qui porte le déplacement dans la chaîne.
@@ -80,3 +100,6 @@ Changer l'angle de lâcher modifie donc un peu ces durées.
   répartit en petits mouvements résiduels.
 - Les fils et la gravité sont négligés pendant les 2,5 ms du choc. Le mouvement est calculé
   sur un seul axe.
+- **Plans terrestres** : 600 billes agrandies figurent les 1,6 milliard de billes réelles.
+  La lueur et le halo ne font que repérer l'impulsion, dont la largeur réelle (quelques billes,
+  une dizaine de centimètres) serait invisible à l'échelle de la Terre.
