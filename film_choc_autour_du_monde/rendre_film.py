@@ -90,8 +90,17 @@ def regler_rendu(scene, args, gpu):
     scene.render.image_settings.color_mode = "RGB"
 
 
+def activer_scene(scene):
+    """Blender n'anime que la scène de la fenêtre : celle qu'on rend doit l'être."""
+    fenetres = bpy.context.window_manager.windows
+    fenetre = bpy.context.window or (fenetres[0] if len(fenetres) else None)
+    if fenetre is not None:
+        fenetre.scene = scene
+
+
 def rendre(scene, images, dossier):
     dossier.mkdir(parents=True, exist_ok=True)
+    activer_scene(scene)
     a_faire = [f for f in images if not (dossier / f"{f:04d}.png").exists()]
     print(f"{scene.name} : {len(images) - len(a_faire)} images déjà rendues, {len(a_faire)} à rendre")
     debut = time.time()
@@ -269,6 +278,7 @@ def main():
     ffmpeg.constant_rate_factor = "HIGH"
     ffmpeg.audio_codec, ffmpeg.audio_bitrate, ffmpeg.audio_channels = "AAC", 192, "STEREO"
     montage.render.filepath = str(args.sortie / NOM_FILM)
+    activer_scene(montage)
     bpy.ops.wm.save_as_mainfile(filepath=str(args.sortie / "film.blend"))
     bpy.ops.render.render(animation=True, scene=montage.name)
     # Blender ajoute la plage d'images au nom des vidéos : on remet le nom voulu
