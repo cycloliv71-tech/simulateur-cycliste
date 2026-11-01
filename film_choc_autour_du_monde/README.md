@@ -1,105 +1,84 @@
-# Le choc autour du monde — mouvement calculé pour Blender
+# Le choc autour du monde
 
-Les scripts séparent ce qui est **calculé** de ce qui est **mis en scène** :
+Film de 30 s sur la propagation d'une impulsion dans une chaîne de billes d'acier :
+un pendule de Newton, puis la même chaîne étirée autour de la Terre, le long du
+méridien de Paris. Le mouvement est **calculé** ; la lumière, les zooms et le
+ralenti sont **mis en scène**, et le film dit toujours lequel est lequel.
 
-| Script | Rôle | Où il tourne |
+## Rendre le film (une commande)
+
+Il faut [Blender](https://www.blender.org/download/) 4.4 ou plus récent (testé avec 5.2).
+Depuis ce dossier :
+
+```bash
+blender -b -P rendre_film.py                      # 1920×1080, 128 échantillons
+blender -b -P rendre_film.py -- --apercu          # 640×360, pour vérifier vite
+blender -b -P rendre_film.py -- --resolution 3840x2160 --echantillons 256
+```
+
+Sous Windows, remplacez `blender` par le chemin complet, par exemple
+`"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe"`.
+
+Le script trouve tout seul la carte graphique (OptiX pour une NVIDIA RTX, sinon CUDA,
+HIP, oneAPI ou Metal). Avec une RTX 5070 Ti, compter de l'ordre d'une à trois secondes
+par image en 1080p, soit 15 à 40 minutes pour les 720 images. Les images déjà rendues
+sont gardées : on peut interrompre et relancer. Tout arrive dans `rendu/` :
+`le_choc_autour_du_monde.mp4`, les images, `bande_son.wav` et `film.blend`
+(pour ouvrir les scènes et le montage dans Blender).
+
+## Déroulé
+
+| Temps | Plans | Contenu |
 |---|---|---|
-| `simuler_chaine.py` | Physique seule : chute du pendule, onde dans la chaîne de billes (contact de Hertz), balancement après le choc. Écrit des données en unités SI. | Python 3 + NumPy |
-| `importer_blender.py` | Plans 1 à 4 et 10 (le pendule) : place les données sur la ligne de temps, amplifie les déplacements, pilote la lueur par la compression. Ne calcule aucune physique. | Blender 4.x / 5.x |
-| `plans_terre_blender.py` | Plans 5 à 9 et 11 (la Terre) : chaîne le long du méridien de Paris, impulsion en accéléré, compteurs et titre. N'utilise que la vitesse de l'onde calculée. | Blender 4.x / 5.x |
+| 0:00 – 0:04,8 | 1 à 4 | Bille tenue puis lâchée (ralenti ×2), choc, impulsion suivie le long des 60 billes (ralenti ×1 218) |
+| 0:04,8 – 0:24,8 | 5 à 9 | Tour du monde en un seul mouvement de caméra, zoom sur chaque pays traversé |
+| 0:24,8 – 0:25,9 | 10 | La dernière bille du pendule s'envole |
+| 0:25,9 – 0:30 | 11 | La caméra quitte Paris, titre et bilan : 40 008 km · 17 h 02 · 653 m/s |
 
-`apercu_choc.mp4` montre les plans du pendule, `apercu_film.mp4` le film assemblé.
+Pays et mers traversés, calculés sur les frontières Natural Earth :
+France, Espagne, Méditerranée, Algérie, Mali, Niger, Burkina Faso (15 km), Bénin,
+Atlantique, océan Austral, Antarctique, Pacifique, mer de Béring, Russie (Tchoukotka),
+mer des Tchouktches, Arctique, mer de Norvège, mer du Nord, France.
 
-## Utilisation
+## Les scripts
 
-```bash
-python3 simuler_chaine.py --billes 60 --sortie donnees_choc
-```
-
-Puis, avec le fichier `.blend` enregistré à côté du dossier `donnees_choc` :
-Blender > Scripting > Ouvrir `importer_blender.py` > Exécuter. En ligne de commande :
-
-```bash
-blender scene.blend --python importer_blender.py -- --donnees /chemin/donnees_choc
-```
-
-Le script peut être relancé : il vide et recrée la collection `Choc_Billes`.
-Le matériau `Acier_choc` n'est créé qu'une fois, donc vos retouches sont conservées.
-
-Pour les plans de la Terre, le `.blend` enregistré dans ce dossier (à côté de
-`donnees_choc` et `textures`) :
-
-```bash
-blender scene.blend --python plans_terre_blender.py -- --donnees /chemin/donnees_choc --textures /chemin/textures
-```
-
-Le script crée la scène `Choc_Terre` (recréée à chaque exécution) : la Terre texturée,
-l'atmosphère, l'anneau de billes, le halo qui repère l'impulsion, la caméra de chaque plan
-et les textes. Les compteurs sont mis à jour à chaque image par `compteur_choc.py`, rangé
-dans le `.blend` ; après réouverture du fichier, autorisez l'exécution automatique des
-scripts pour qu'ils restent à jour.
-
-Les instants de passage (`CLES_DISTANCE`) et le découpage des plans (`PLANS`) se règlent en
-tête du script. Le temps réel affiché vaut toujours distance / vitesse calculée, et le
-facteur « Accéléré » est celui de l'image en cours (de ×600 environ au départ à ×75 000).
-
-## Ce qui est créé dans Blender (pendule)
-
-- `Pivot.000…` : point d'attache de chaque fil, qui porte le balancement. Accrochez-y les fils.
-- `Bille.000…` : enfant de son pivot, qui porte le déplacement dans la chaîne.
-- `Front_onde` : suit le centre de l'onde (moyenne pondérée par la force).
-  Une contrainte *Copy Location* ou *Child Of* dessus fait suivre l'impulsion par la caméra (plan 3).
-- La lueur de chaque bille est sa compression calculée, normalisée entre 0 et 1, stockée dans
-  la **couleur d'objet** et lue par le nœud *Object Info* du matériau.
-- La lueur sort dans la passe **Emit** et dans l'AOV **`lueur`**. Elle se dose au compositing
-  sans toucher au mouvement.
-- Les propriétés de la scène `ralenti_choc`, `amplification_deplacements` et
-  `vitesse_onde_m_s` contiennent les valeurs à citer au générique.
-
-## Réglages (en tête de `importer_blender.py`)
-
-`DUREE_ATTENTE_S`, `RALENTI_BALANCEMENT`, `DUREE_CHOC_S`, `FRACTION_RAYON`,
-`INTENSITE_LUEUR` et `COULEUR_LUEUR`. Ils changent l'apparence, jamais les données.
-
-## Résultats avec les réglages par défaut
-
-Billes d'acier de 25 mm, fil de 30 cm, lâcher à 30°, 60 billes :
-
-| Grandeur | Valeur |
+| Script | Rôle |
 |---|---|
-| Vitesse d'impact | 0,89 m/s |
-| Durée d'un contact | 78 µs |
-| Compression maximale | 24 µm |
-| Vitesse de l'onde dans la chaîne | **≈ 650 m/s** |
-| Son dans une barre d'acier | ≈ 5 050 m/s |
-| Traversée des 60 billes | 2,5 ms → ralenti ×1 200 pour 3 s à l'écran |
-| Amplification des déplacements | ×32 |
+| `simuler_chaine.py` | Physique : chute du pendule, onde dans la chaîne (contact de Hertz), balancement final. Écrit `donnees_choc/` en unités SI. Python + NumPy. |
+| `preparer_pays.py` | Géographie : pays et mers traversés le long du méridien de Paris, distances et heures d'entrée, contours et cartes des frontières. Écrit dans `textures/`. |
+| `importer_blender.py` | Pose le mouvement calculé sur la ligne de temps de Blender (ralenti, amplification unique des déplacements, lueur = compression calculée). |
+| `plans_pendule_blender.py` | Décor du pendule, caméra calée sur le front d'onde calculé. |
+| `plans_terre_blender.py` | La Terre (jour, nuit, nuages, relief, frontières), l'anneau de billes, l'impulsion, la caméra qui suit, les cartouches et compteurs, le titre. |
+| `bande_son.py` | Son synthétisé : un tintement à chaque contact calculé entre billes, une note à chaque frontière, nappe, souffle, choc final. |
+| `rendre_film.py` | Enchaîne tout et produit la vidéo. |
 
-Sur Terre, le long du méridien de Paris (les durées sont aussi dans `meta.json`) :
+`preparer_pays.py` a besoin des frontières Natural Earth au format TopoJSON
+(`npm pack world-atlas@2.0.2`). Ses résultats sont déjà dans `textures/` ; il ne faut
+le relancer que si l'on change la vitesse de l'onde ou le tracé.
 
-| Repère | Chaîne de billes (650 m/s) | Barre d'acier (5 050 m/s) |
-|---|---|---|
-| Alger (1 345 km) | 0 h 34 | 0 h 04 |
-| Cotonou (4 722 km) | 2 h 01 | 0 h 16 |
-| Antipode (20 004 km) | 8 h 31 | 1 h 06 |
-| Retour à Paris (40 008 km) | **17 h 02** | 2 h 12 |
+## Ce qui est calculé, ce qui est mis en scène
 
-La vitesse de l'onde dépend légèrement de la force du choc (elle varie comme v₀^(1/5)).
-Changer l'angle de lâcher modifie donc un peu ces durées.
+Calculé :
+- la chute du pendule, la propagation du choc de bille en bille (énergie conservée à
+  10⁻⁶ près) et la vitesse de l'onde : **653 m/s** pour des billes de 25 mm lâchées à 30°
+  (le son va à 5 050 m/s dans une barre d'acier) ;
+- les pays traversés et leurs distances ; le temps réel affiché vaut toujours
+  distance / 653 m/s, soit **17 h 02** pour le tour complet ;
+- la course du Soleil (15° par heure de temps réel, à l'équinoxe) : départ de jour,
+  retour à Paris de nuit.
 
-## Limites à assumer dans le film
+Mis en scène, et signalé à l'écran :
+- le ralenti du pendule (×2 et ×1 218) et l'accéléré du tour du monde (affiché en
+  permanence, de ×600 à ×19 000 environ) ;
+- les déplacements des billes du pendule, amplifiés ×32 (environ 30 µm en réalité) ;
+- les 600 billes agrandies du tour du monde : il en faudrait 1,6 milliard de 25 mm ;
+- la lueur et le halo, qui repèrent l'impulsion.
 
-- **Chocs parfaitement élastiques, sans frottement** : l'énergie est conservée à 10⁻⁶ près.
-  Dans une vraie chaîne, l'onde s'amortirait sur une distance bien plus courte qu'un tour de
-  Terre. Les plans terrestres restent une **expérience de pensée** qui prolonge la vitesse calculée.
-- **Déplacements amplifiés** (environ 30 µm en réalité) par un facteur unique pour toutes les
-  billes. L'interpénétration visible au passage de l'onde correspond à la compression réelle,
-  amplifiée du même facteur.
-- **Le recul des premières billes est réel** : une chaîne de Hertz n'est pas un pendule de
-  Newton idéal. La dernière bille repart avec 98,6 % de la vitesse d'impact, et le reste se
-  répartit en petits mouvements résiduels.
-- Les fils et la gravité sont négligés pendant les 2,5 ms du choc. Le mouvement est calculé
-  sur un seul axe.
-- **Plans terrestres** : 600 billes agrandies figurent les 1,6 milliard de billes réelles.
-  La lueur et le halo ne font que repérer l'impulsion, dont la largeur réelle (quelques billes,
-  une dizaine de centimètres) serait invisible à l'échelle de la Terre.
+Limites à assumer : chocs parfaitement élastiques et sans frottement. Une vraie chaîne
+amortirait l'onde bien avant un tour de Terre : les plans terrestres sont une
+**expérience de pensée** qui prolonge la vitesse calculée.
+
+## Sources des données
+
+Voir `textures/SOURCES.md` : images NASA (domaine public), frontières Natural Earth
+(domaine public).

@@ -52,7 +52,8 @@ def lire_arguments():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     p = argparse.ArgumentParser(prog="importer_blender.py")
     p.add_argument("--donnees", default=DOSSIER_DONNEES, help="dossier écrit par simuler_chaine.py")
-    return p.parse_args(argv)
+    args, _ = p.parse_known_args(argv)
+    return args
 
 
 def dossier_donnees(chemin):
@@ -267,6 +268,16 @@ def main():
           f"fin du choc : image {image_fin_choc}, fin : image {image_fin}")
     print(f"Ralenti de la traversée : ×{ralenti_choc:,.0f}")
     print(f"Amplification des déplacements : ×{amplification:,.0f}")
+    return {
+        "image_lacher": image_lacher,
+        "image_impact": image_impact,
+        "image_fin_choc": image_fin_choc,
+        "image_fin": image_fin,
+        "ralenti_choc": ralenti_choc,
+        "rayon": rayon,
+        "longueur": longueur,
+        "billes": n,
+    }
 
 
 if __name__ == "__main__":
