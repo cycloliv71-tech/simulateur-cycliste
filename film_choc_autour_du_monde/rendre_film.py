@@ -156,6 +156,10 @@ def fondu(strip, cles):
 
 
 def main():
+    # La console Windows n'affiche pas toujours l'UTF-8 : jamais d'arrêt pour un caractère
+    for flux in (sys.stdout, sys.stderr):
+        if hasattr(flux, "reconfigure"):
+            flux.reconfigure(errors="replace")
     args = lire_arguments()
     args.sortie.mkdir(parents=True, exist_ok=True)
 
