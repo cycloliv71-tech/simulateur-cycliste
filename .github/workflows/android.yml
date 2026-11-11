@@ -1,0 +1,58 @@
+name: Application Android
+
+on:
+  push:
+    paths:
+      - "android/**"
+      - ".github/workflows/android.yml"
+  pull_request:
+    paths:
+      - "android/**"
+      - ".github/workflows/android.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    name: Construire l'APK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Tests et compilation
+        run: ./gradlew --no-daemon testDebugUnitTest assembleDebug -PnumeroBuild=${{ github.run_number }}
+
+      - name: Renommer l'APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk jumeau-cycliste.apk
+
+      - name: Envoyer l'APK (onglet Actions)
+        uses: actions/upload-artifact@v4
+        with:
+          name: jumeau-cycliste-apk
+          path: android/jumeau-cycliste.apk
+
+      - name: Publier une version (page Releases)
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-v1.0.${{ github.run_number }}
+          name: Jumeau Cycliste 1.0.${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          body: |
+            Application Android « Jumeau Cycliste ».
+            Sur ton téléphone : télécharge jumeau-cycliste.apk ci-dessous, ouvre-le
+            et autorise l'installation depuis cette source si Android le demande.
+          files: android/jumeau-cycliste.apk

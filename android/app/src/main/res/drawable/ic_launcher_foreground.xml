@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Un vélo cyan et son « jumeau » violet en écho. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <group
+        android:translateX="3"
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.9"
+        android:scaleY="0.9">
+
+        <!-- Le jumeau (écho décalé) -->
+        <group android:translateX="-6">
+            <path
+                android:fillColor="#00000000"
+                android:strokeColor="#997C5CFF"
+                android:strokeWidth="3"
+                android:strokeLineCap="round"
+                android:strokeLineJoin="round"
+                android:pathData="M25,62 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0 M61,62 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0 M36,62 L52,62 L47,45 Z M47,45 L67,45 L52,62 M67,45 L72,62 M67,45 L65,40 L71,39 M43,43 L51,43" />
+        </group>
+
+        <!-- Le cycliste réel -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FF00D4FF"
+            android:strokeWidth="3.5"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M25,62 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0 M61,62 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0 M36,62 L52,62 L47,45 Z M47,45 L67,45 L52,62 M67,45 L72,62 M67,45 L65,40 L71,39 M43,43 L51,43" />
+    </group>
+</vector>
