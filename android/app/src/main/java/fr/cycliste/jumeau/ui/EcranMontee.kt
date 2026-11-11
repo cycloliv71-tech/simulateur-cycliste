@@ -144,8 +144,8 @@ fun EcranMontee(profil: Profil) {
             GrosChiffre(formaterChrono(resultat.tempsS), "", etiquette = "temps_montee")
             Remarque(formaterDuree(resultat.tempsS))
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Statistique("Vitesse (km/h)", resultat.vitesseKmh.fr(1), Modifier.weight(1f), Couleurs.Accent)
-                Statistique("VAM (m/h)", "${resultat.vamMh.roundToInt()}", Modifier.weight(1f), Couleurs.Accent2)
+                Statistique("Vitesse", resultat.vitesseKmh.fr(1), Modifier.weight(1f), Couleurs.Accent, unite = "km/h")
+                Statistique("VAM", "${resultat.vamMh.roundToInt()}", Modifier.weight(1f), Couleurs.Accent2, unite = "m/h")
                 Statistique(
                     "W/kg",
                     (puissance / profil.poidsCycliste).fr(2),

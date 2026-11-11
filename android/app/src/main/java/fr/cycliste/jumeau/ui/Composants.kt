@@ -42,12 +42,15 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -167,6 +170,7 @@ fun Statistique(
     modifier: Modifier = Modifier,
     couleur: Color = Couleurs.Texte,
     etiquette: String? = null,
+    unite: String = "",
 ) {
     Column(
         modifier
@@ -178,7 +182,12 @@ fun Statistique(
     ) {
         Text(libelle, fontSize = 12.sp, lineHeight = 16.sp, color = Couleurs.TexteClair)
         Text(
-            valeur,
+            buildAnnotatedString {
+                append(valeur)
+                if (unite.isNotEmpty()) {
+                    withStyle(SpanStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium)) { append(" $unite") }
+                }
+            },
             fontSize = 18.sp,
             lineHeight = 24.sp,
             fontWeight = FontWeight.Bold,
