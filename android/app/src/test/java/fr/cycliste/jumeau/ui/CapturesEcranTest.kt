@@ -1,11 +1,9 @@
 package fr.cycliste.jumeau.ui
 
 import android.graphics.Bitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.test.captureToImage
+import android.graphics.Canvas
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import fr.cycliste.jumeau.MainActivity
 import org.junit.Rule
@@ -34,7 +32,9 @@ class CapturesEcranTest {
         listOf("JUMEAU", "PUISSANCE", "MONTEE", "ZONES").forEachIndexed { i, onglet ->
             regle.onNodeWithTag("onglet_$onglet").performClick()
             regle.waitForIdle()
-            val image = regle.onRoot().captureToImage().asAndroidBitmap()
+            val vue = regle.activity.window.decorView
+            val image = Bitmap.createBitmap(vue.width, vue.height, Bitmap.Config.ARGB_8888)
+            regle.runOnUiThread { vue.draw(Canvas(image)) }
             File(dossier, "${i + 1}_$onglet.png").outputStream().use {
                 image.compress(Bitmap.CompressFormat.PNG, 100, it)
             }
