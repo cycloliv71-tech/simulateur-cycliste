@@ -35,17 +35,6 @@ jobs:
       - name: Tests et compilation
         run: ./gradlew --no-daemon testDebugUnitTest assembleDebug -PnumeroBuild=${{ github.run_number }}
 
-      - name: Captures d'écran (temporaire, pour vérification)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cd app/build/captures
-          git init -q
-          git checkout -q -b captures-ecran
-          git add .
-          git -c user.name=github-actions -c user.email=github-actions@users.noreply.github.com commit -q -m "Captures d'écran"
-          git push -q -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" captures-ecran
-
       - name: Renommer l'APK
         run: cp app/build/outputs/apk/debug/app-debug.apk jumeau-cycliste.apk
 
