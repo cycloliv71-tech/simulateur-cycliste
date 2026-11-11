@@ -2,8 +2,10 @@ package fr.cycliste.jumeau.ui
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -141,9 +143,9 @@ fun EcranMontee(profil: Profil) {
         Carte("Temps estimé") {
             GrosChiffre(formaterChrono(resultat.tempsS), "", etiquette = "temps_montee")
             Remarque(formaterDuree(resultat.tempsS))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Statistique("Vitesse", "${resultat.vitesseKmh.fr(1)} km/h", Modifier.weight(1f), Couleurs.Accent)
-                Statistique("VAM", "${resultat.vamMh.roundToInt()} m/h", Modifier.weight(1f), Couleurs.Accent2)
+            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Statistique("Vitesse (km/h)", resultat.vitesseKmh.fr(1), Modifier.weight(1f), Couleurs.Accent)
+                Statistique("VAM (m/h)", "${resultat.vamMh.roundToInt()}", Modifier.weight(1f), Couleurs.Accent2)
                 Statistique(
                     "W/kg",
                     (puissance / profil.poidsCycliste).fr(2),
@@ -179,6 +181,7 @@ fun EcranMontee(profil: Profil) {
                 libelleX = "Puissance moyenne (W)",
                 libelleY = "Temps (min)",
                 marqueur = puissance to resultat.tempsS / 60.0,
+                depuisZero = false,
             )
         }
     }

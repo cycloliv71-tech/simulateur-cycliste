@@ -170,6 +170,7 @@ fun Statistique(
 ) {
     Column(
         modifier
+            .fillMaxHeight()
             .clip(RoundedCornerShape(12.dp))
             .background(couleur.copy(alpha = 0.08f))
             .border(1.dp, couleur.copy(alpha = 0.25f), RoundedCornerShape(12.dp))
@@ -304,6 +305,7 @@ fun Courbe(
     libelleY: String,
     marqueur: Pair<Double, Double>? = null,
     formatY: (Double) -> String = { it.roundToInt().toString() },
+    depuisZero: Boolean = true,
 ) {
     val mesureur = rememberTextMeasurer()
     val styleAxe = TextStyle(color = Couleurs.TexteClair, fontSize = 10.sp)
@@ -319,10 +321,13 @@ fun Courbe(
             if (tous.isEmpty()) return@Canvas
             val xMin = tous.minOf { it.first }
             val xMax = tous.maxOf { it.first }
-            val yMin = minOf(0.0, tous.minOf { it.second })
+            var yMin = tous.minOf { it.second }
             var yMax = tous.maxOf { it.second }
+            if (depuisZero) yMin = minOf(0.0, yMin)
             if (yMax <= yMin) yMax = yMin + 1.0
-            yMax += (yMax - yMin) * 0.05
+            val marge = (yMax - yMin) * 0.05
+            yMax += marge
+            if (!depuisZero) yMin -= marge
 
             val gauche = 40.dp.toPx()
             val droite = 8.dp.toPx()

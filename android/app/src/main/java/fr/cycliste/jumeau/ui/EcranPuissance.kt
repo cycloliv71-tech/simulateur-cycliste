@@ -1,8 +1,10 @@
 package fr.cycliste.jumeau.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,7 +58,7 @@ fun EcranPuissance(profil: Profil) {
                 )
             }
 
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Statistique("Gravité", "${p.gravite.roundToInt()} W", Modifier.weight(1f), Couleurs.Accent2)
                 Statistique("Roulement", "${p.roulement.roundToInt()} W", Modifier.weight(1f), Couleurs.Warn)
                 Statistique("Aéro", "${p.aero.roundToInt()} W", Modifier.weight(1f), Couleurs.AeroClair)

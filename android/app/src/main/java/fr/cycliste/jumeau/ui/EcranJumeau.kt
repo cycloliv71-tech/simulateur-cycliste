@@ -1,8 +1,10 @@
 package fr.cycliste.jumeau.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -130,7 +132,7 @@ private fun CarteResume(profil: Profil) {
     val puissance30 = profil.puissance(30.0, 0.0).totale
 
     Carte(profil.nom.ifBlank { "Mon jumeau" }) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Statistique(
                 "W/kg à FTP",
                 profil.wattsParKg.fr(2),

@@ -86,10 +86,11 @@ private fun LigneZone(bornes: BornesZone) {
                 "Z${zone.numero} · ${zone.nom}",
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
+                lineHeight = 22.sp,
                 color = couleur,
             )
-            Text(pourcentages, fontSize = 12.sp, color = Couleurs.TexteClair)
-            Text(zone.description, fontSize = 12.sp, color = Couleurs.TexteClair)
+            Text(pourcentages, fontSize = 12.sp, lineHeight = 16.sp, color = Couleurs.TexteClair)
+            Text(zone.description, fontSize = 12.sp, lineHeight = 16.sp, color = Couleurs.TexteClair)
         }
         Text(
             watts,
